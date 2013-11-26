@@ -1,0 +1,8 @@
+#ignore temp files
+*~
+
+#ignore DS_STORE
+.DS_STORE
+
+#data files
+*.mat
