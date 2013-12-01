@@ -6,3 +6,15 @@
 
 #data files
 *.mat
+
+#figures
+*.fig
+
+#images
+*.png 
+*.jpg
+
+#movies
+*.mp4 
+*.avi
+

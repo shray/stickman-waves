@@ -7,6 +7,7 @@ close all
 rng(30,'twister');
 
 VISUAL = 1; % display simulation
+STORE_VIDEO = 1;
 
 DEG_TO_RAD = 1 * (pi/360);
 
@@ -33,19 +34,30 @@ move_arms_down = gen_dynamics(end_state, start_state, 50);
 % move_arms_up = move_arms_up + .0001*randn(size(move_arms_up));
 
 %% VISUAL
-if VISUAL    
-    figure    
+if VISUAL
+    counter = 1;
+    f = figure;    
     for i=1:size(move_arms_up,1)            
         disp_stick(move_arms_up(i,:), STICK_LENS)
-        pause(.1)
+%         name = sprintf('temp_im_files/im%05d',counter);
+%         print(f, name, '-dpng')
+        counter = counter +1;
+        pause(.001)
     end
 
     for i=1:size(move_arms_down,1)
         disp_stick(move_arms_down(i,:), STICK_LENS)
-        pause(.1)
+%         name = sprintf('temp_im_files/im%05d',counter);
+%         print(f, name, '-dpng')
+        counter = counter +1;
+        pause(.001)
     end
 end
 
+%create video
+% system('cd temp_im_files')
+% system(['/usr/local/bin/ffmpeg -i im%05d.png -y -r 10 -vb 15M -vcodec libx264 ', 'human_motion', '.mp4']);
+% system('rm -rf im*');
 
 % concatenate - data
 data_vec = [move_arms_up; move_arms_down];
@@ -53,5 +65,35 @@ data_vec = [move_arms_up; move_arms_down];
 % do pca
 [coeff,score,latent] = princomp(data_vec);
 
-plot_2d_pca
-plot_3d_pca
+% pca 1D reconstruction
+data_mean = repmat(mean(data_vec,1),size(data_vec,1),1);
+centered_data = data_vec - data_mean;
+X_pca = centered_data * coeff(:,1);
+Y_pca = X_pca * coeff(:,1)' + data_mean;
+reconstruction_error_pca = Y_pca - centered_data;
+% store video
+if STORE_VIDEO
+    pca_vid = VideoWriter('pca_reconstruction_linear.mp4');
+    pca_vid.FrameRate = 10;
+    open(pca_vid);
+
+    
+    frame = figure
+    for i=1:size(centered_data,1)
+        
+        
+        disp_2_sticks(data_vec(i,:),Y_pca(i,:), STICK_LENS)
+        pause(.1)
+    end
+    pca_vid.close();
+    
+end
+
+figure, plot_pca(data_vec, coeff(:,1)) % 1D projection in Principal Component Subspace
+figure, plot_pca( data_vec, coeff(:,1:2)) % 2D projection in Principal Component Subspace
+figure, plot_pca( data_vec, coeff(:,1:3)) % 3D projection in Principal Component Subspace
+
+% 1D GPDM
+[X_gpdm, theta_1, thetad_1, w_1, K_1, invK_1] = gpdm_it(data_vec, 1);
+
+
