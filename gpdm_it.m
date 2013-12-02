@@ -87,7 +87,7 @@ w = ones(D,1);
 [X theta thetad w] = gpdmfitFull(X, Y, w, segments, theta, thetad, opt, ... 
      extItr, modelType, missing);
  
- [K invK] = computeKernel(X, theta);
+[K invK] = computeKernel(X, theta);
 
 save gpdm_vars X Y w theta thetad modelType N D q meanData  ...
 segments missing refY
