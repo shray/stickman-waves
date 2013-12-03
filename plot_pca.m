@@ -22,7 +22,7 @@ end
 if dim > 2
     scatter3(pca_points_x,pca_points_y, pca_points_z)
 elseif dim > 1
-    scatter(pca_points_x, pca_points_y)
+    scatter(pca_points_x, pca_points_y, '+')
 else
     stem(pca_points_x)
 
